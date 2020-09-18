@@ -40,17 +40,13 @@ def create_initial_population(cities, config):
 
 def mutation(offspring, mutation_probability=3):
     x = offspring.copy()
-
-    for i in range(len(x.chromosome)):
+    for i in range(1, len(x) - 1):
         prob = np.random.randint(1, 100)
         if prob <= mutation_probability and i != 0 and i != 10:
-            index = np.random.randint(0, 8)
-            for i in range
-
-            aux = x.chromosome[index]
-            x.chromosome[index] = x.chromosome[i]
-            x.chromosome[i] = aux
-    print("Mutation of {} in {}".format(offspring.chromosome, x.chromosome))
+            index = np.random.randint(1, 9)
+            aux = x[index]
+            x[index] = x[i]
+            x[i] = aux
     return x
 
 
@@ -58,16 +54,34 @@ def crossover_two_cut(parent1, parent2):
     print("two pontin")
 
 
+def get_index_gene(chromosome, x):
+    for i in range(len(chromosome)):
+        if chromosome[i] == x:
+            return i
+    return -1
+
+
+
 def crossover_one_cut(parent1, parent2):
     cut_index = np.random.randint(2, 8)
-    # print("Cut index = {}".format(cut_index))
-    # print("parent1 = {}  parente2 = {}".format(parent1.chromosome, parent2.chromosome))
-    # print("childrem = {}".format(parent1.chromosome[0:cut_index] + parent2.chromosome[cut_index:11]))
-    return parent1.chromosome[0:cut_index] + parent2.chromosome[cut_index:11]
+    # print("MParent 1 e 2 {} in {}".format(parent1, parent2))
+    # child = parent1.chromosome[0:cut_index]
+    first = parent1.chromosome[0:cut_index]
+    first2 = parent2.chromosome.copy()
+    # print("Cut = {}".format(cut_index))
+    for i in range(1, cut_index):
+        index = get_index_gene(first2, first[i])
+        aux = first2[i]
+        first2[i] = first[i]
+        first2[index] = aux
+    # print("MParent 1 {}".format(parent1.chromosome))
+    # print("MParent 2 {}".format(parent2.chromosome))
+    # print("Mchild    {}".format(first2))
 
+    return first2
 
 def crossover(cities, parent1, parent2):
-    probability = np.random.randint(0, 10)
+    probability = np.random.randint(0, 9)
     offspring = structure()
 
     if probability < 11:
@@ -76,55 +90,80 @@ def crossover(cities, parent1, parent2):
         chromosome = crossover_two_cut(parent1, parent2)
 
     offspring.cost = calc_fitness(cities, chromosome)
-    offspring.chromosome = chromosome
+    offspring.chromosome = mutation(chromosome)
     return offspring
 
 def selection(p):
-    c = np.cumsum(p)
-    r = sum(p) * np.random.rand()
-    ind = np.argwhere(r <= c)
-    return ind[0][0]
+    a = np.random.randint(0, len(p))
+    b = np.random.randint(0, len(p))
+    return a, b
 
+def cut_population(population, config):
+    min = float('-inf')
+    index = 0
+    # for i in range(len(population)):
+    #     print("{} - {}".format(i, population[i].cost))
+    population = sorted(population, key=operator.attrgetter('cost'))
+    population = population[0:config.population_size]
 
-def verify_chromosome(chromosome):
-    find = [11]
-    print("Chromosome = {}".format(chromosome[0]))
-    for i in range(len(chromosome)):
-        if find[i] != True:
-            print("Chromosome = {}".format(chromosome[i]))
-            find.insert(chromosome[i], True)
-        else:
-            return False
-    return True
+    # print("outra ==============")
+    # for i in range(len(population)):
+    #     print("{} - {}".format(i, population[i].cost))
 
+    # for i in range(len(population)):
+    #     if population[i].cost < min:
+    #         min = population[i].cost
+    #         index = i
+    # population.pop(index)
+    return population
+
+def print_way(cities, chromosome):
+    print("{} -> {} -> {} -> {} -> {} -> {} -> {} -> {} -> {} -> {} -> {}".format(
+        cities.name[chromosome[0]],
+        cities.name[chromosome[1]],
+        cities.name[chromosome[2]],
+        cities.name[chromosome[3]],
+        cities.name[chromosome[4]],
+        cities.name[chromosome[5]],
+        cities.name[chromosome[6]],
+        cities.name[chromosome[7]],
+        cities.name[chromosome[8]],
+        cities.name[chromosome[9]],
+        cities.name[chromosome[10]]
+    ))
 
 def run(cities, config):
     population, min_cost = create_initial_population(cities, config)
-    costs = np.array([x.cost for x in population])
 
     print(population)
 
     for i in range(config.number_iterations):
+        costs = np.array([x.cost for x in population])
         avg_cost = np.mean(costs)
         if avg_cost != 0:
             costs = costs / avg_cost
         probs = np.exp(-1 * costs)
-
+        print("Interation number = {}".format(i))
+        print("Min value = {}".format(min_cost))
         new_population = []
-        for i in range(config.population_size):
-            parent1 = selection(probs)
-            parent2 = selection(probs)
+        # for i in range(config.population_size):
+        for i in range(20):
+            parent1, parent2 = selection(population)
+            # = selection(population)
             new_cromosome = crossover(cities, population[parent1], population[parent2])
             # print(population[0].cost)
             #
             # print("New chromosome cost = {}".format(calc_fitness(cities, new_cromosome)))
             # fitness_offspring = calc_fitness(cities, new_cromosome)
-            if min_cost.cost > new_cromosome.cost and verify_chromosome(new_cromosome.chromosome):
+            if min_cost.cost > new_cromosome.cost:
                 min_cost.cost = new_cromosome.cost
                 min_cost.chromosome = new_cromosome.chromosome
-                print(min_cost)
-            new_population.append(mutation(new_cromosome))
-        population = new_population
-        # mutation()
+            #     print(min_cost)
+            # print(new_population)
+            #
+            # print(new_population)
+            new_population.append(new_cromosome)
+        population = cut_population(population + new_population, config)
+    print_way(cities, min_cost.chromosome)
     print("Custo minimo = {}".format(min_cost))
     print("Custo minimo valor = {}".format(calc_fitness(cities, min_cost.chromosome)))
