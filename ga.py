@@ -89,8 +89,9 @@ def crossover(cities, parent1, parent2):
     else:
         chromosome = crossover_two_cut(parent1, parent2)
 
+    chromosome = mutation(chromosome)
     offspring.cost = calc_fitness(cities, chromosome)
-    offspring.chromosome = mutation(chromosome)
+    offspring.chromosome = chromosome
     return offspring
 
 def selection(p):

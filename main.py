@@ -22,7 +22,7 @@ def initialize():
 # Iniicializa a estrutura das cidades
 cities = initialize()
 config = structure()
-config.population_size = 50
+config.population_size = 20
 config.number_city = 10
 config.city_start = 9
 config.number_iterations = 1000
