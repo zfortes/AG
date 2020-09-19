@@ -1,5 +1,17 @@
 from ga import run
 from ypstruct import structure
+##### Requisitos
+# Python3
+
+
+# Lista de bibliotecas necessarias
+# ypstruct
+# numpy
+# Para instalar:
+# pip3 install ypstruct && pip3 install numpy
+
+# Rodar o projeto:
+# python3 main.py
 
 
 # Cria uma estrutura com o nome de todas as cidades e suas respectivas distancias armazenada em uma matriz
