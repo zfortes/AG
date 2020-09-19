@@ -177,7 +177,7 @@ def run(cities, config):
                 min_cost.chromosome = x.chromosome
 
         new_population = []
-        for i in range(config.population_size):
+        for j in range(config.population_size):
             parent1, parent2 = selection(population)
             new_chromosome = crossover(cities, population[parent1], population[parent2], config)
             new_population.append(new_chromosome)
