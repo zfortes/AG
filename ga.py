@@ -4,7 +4,7 @@ import numpy as np
 import operator
 
 
-# Função que calcula o fitness de um cromossomo somando todas as diantancias do percurso
+# Função que calcula o fitness de um cromossomo somando todas as distancias do percurso
 def calc_fitness(cities, chromosome):
     res = 0
     for i in range(len(chromosome) - 1):
@@ -20,7 +20,7 @@ def create_initial_population(cities, config):
     initial_population.chromosome = list(range(0, 9))
     initial_population = initial_population.repeat(config.population_size)
     min_cost = structure()
-    min_cost.cost = 999999999
+    min_cost.cost = float('inf')
     for i in range(config.population_size):
         random.shuffle(initial_population[i].chromosome)
         initial_population[i].chromosome.insert(0, 9)
@@ -32,6 +32,8 @@ def create_initial_population(cities, config):
     return initial_population, min_cost
 
 
+# Recebe um cromossomo e uma probabilidade onde a cada gene terá x por cento de chances de ser
+# alterado pelo valor de outro gene no mesmo chromossomo
 def mutation(offspring, mutation_probability):
     x = offspring.copy()
     for i in range(1, len(x) - 1):
@@ -44,6 +46,10 @@ def mutation(offspring, mutation_probability):
     return x
 
 
+# Reprodução onde um intervalo do cromossomo é sorteado aleatóriamente e é feita o crossover onde é
+# pego um intervalo do parent 1 e outros dois intervalos do parent 2 e assim se cria um novo filho
+# A função se baseia em pegar cada gene no intervalo escolhido e procula-lo no segundo gene onde os
+# mesmos são trocados de modo a nunca existir um cromossomo com dois ou mais genes indenticos
 def crossover_two_cut(parent1, parent2):
     cut_index1 = np.random.randint(2, 8)
     cut_index2 = np.random.randint(2, 8)
@@ -64,6 +70,7 @@ def crossover_two_cut(parent1, parent2):
     return first2
 
 
+# Recebe um cromossomo e um número de cidade que irá procurar e retorna o index da mesma no cromossomo
 def get_index_gene(chromosome, x):
     for i in range(len(chromosome)):
         if chromosome[i] == x:
@@ -71,6 +78,11 @@ def get_index_gene(chromosome, x):
     return -1
 
 
+# Reprodução onde o cromossomo parent1 e parent2 é cortado em um indice escolhido aleatóriamente para que se
+# possa criar um filho com uma parte do cromossomo de cada pai
+# A função se baseia em pegar cada gene no anterior ao corte no parent1 e procula-lo no segundo gene onde os
+# mesmos são trocados de modo a nunca existir um cromossomo com dois ou mais genes indenticos no mesmo lado
+# do corte no parent1 e no parent2
 def crossover_one_cut(parent1, parent2):
     cut_index = np.random.randint(2, 8)
     first = parent1.chromosome[0:cut_index]
@@ -84,6 +96,10 @@ def crossover_one_cut(parent1, parent2):
     return first2
 
 
+# Funcao que cuida da reproducao do cromossomo
+# Esta disponivel a reproducao por corte em um ponto e em multi pontos onde cada tipo de reproducao tem
+# 50% de chances de ocorrer
+# Apos a reproducao é feita a mutacao e em seguida e gerado um novo filho com o seu fitness ja calculado
 def crossover(cities, parent1, parent2, config):
     probability = np.random.randint(0, 100)
     offspring = structure()
@@ -100,6 +116,8 @@ def crossover(cities, parent1, parent2, config):
     return offspring
 
 
+# Dada uma lista de cidades, duas sao selecionadas ao acaso de forma que numca sera retornado duas cidades
+# identicas
 def selection(p):
     a = np.random.randint(0, len(p))
     b = np.random.randint(0, len(p))
@@ -109,6 +127,11 @@ def selection(p):
     return a, b
 
 
+# Funcao que faz um corte na populacao e representa a selecao natural
+# A populacao é ranekada do mais propenso (com menor custo) para o menos propenso (maior custo)
+# Aqui e utilizado o parametro cut_randomness onde e responsavel por tornar a lista ordenada mais
+# aleatoria possivelmente salvando assim cromossomos que pela selecao seriam menos propensos a dar
+# se reproduzirem
 def cut_population(population, config):
     population = sorted(population, key=operator.attrgetter('cost'))
     for i in range(int(config.cut_randomness)):
@@ -121,6 +144,7 @@ def cut_population(population, config):
     return population
 
 
+# Funcao que exibe os nomes das cidades de um dado cromossomo
 def print_way(cities, chromosome):
     print("{} -> {} -> {} -> {} -> {} -> {} -> {} -> {} -> {} -> {} -> {}".format(
         cities.name[chromosome[0]],
@@ -137,48 +161,34 @@ def print_way(cities, chromosome):
     ))
 
 
+# Funcao principal que executa o algoritmo genetico
+# Ela gera a populacao inicial
+# Em seguida inicia um loop com o numero de interacoes
+# Dentro dele existe o loop responsavel por gerar cada novo integrante da nova populacao
+# onde dois cromossomos serao escolhidos aleatoriamente para serem os pais e gerarem um novo filho
+# Apos a gerancao da populacao, a populacao antiga e a nova sao enviadas a funcao
+# cut_population onde sera decidido quem continuara na populacao e quem sera removido
 def run(cities, config):
     population, min_cost = create_initial_population(cities, config)
-
-    # for x in population:
-    #     print(x.chromosome)
-    cpoy = population.copy()
-
     for i in range(config.number_iterations):
-        costs = np.array([x.cost for x in population])
-        avg_cost = np.mean(costs)
-        if avg_cost != 0:
-            costs = costs / avg_cost
-        probs = np.exp(-1 * costs)
-        # print("Interation number = {}".format(i))
-        # print("Min value = {}".format(min_cost))
         for x in population:
             if min_cost.cost > x.cost:
                 min_cost.cost = x.cost
                 min_cost.chromosome = x.chromosome
 
         new_population = []
-        # for i in range(config.population_size):
         for i in range(config.population_size):
             parent1, parent2 = selection(population)
-            # = selection(population)
             new_chromosome = crossover(cities, population[parent1], population[parent2], config)
-            # print(population[0].cost)
-            #
-            # print("New chromosome cost = {}".format(calc_fitness(cities, new_cromosome)))
-            # fitness_offspring = calc_fitness(cities, new_cromosome)
-
-            #     print(min_cost)
-            # print(new_population)
-            #
-            # print(new_population)
             new_population.append(new_chromosome)
             print_way(cities, new_chromosome.chromosome)
         population = cut_population(population + new_population, config)
-    print_way(cities, min_cost.chromosome)
-    print("Custo minimo = {}".format(min_cost))
-    print("Custo minimo valor = {}".format(calc_fitness(cities, min_cost.chromosome)))
 
-    print("------------------------Firts population-------------------------")
+    print("------------------------First population-------------------------")
     for x in population:
         print(x.chromosome)
+
+    print("|------------ Result --------------|")
+    print_way(cities, min_cost.chromosome)
+    print("Min cost = {}".format(min_cost.chromosome))
+    print("Fitness min cost = {}".format(calc_fitness(cities, min_cost.chromosome)))

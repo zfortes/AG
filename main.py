@@ -21,14 +21,23 @@ def initialize():
 
 # Iniicializa a estrutura das cidades
 cities = initialize()
+
+# Parametros do algoritmo
 config = structure()
+#Tamanho da populacao
 config.population_size = 20
-# config.number_city = 10
-# config.city_start = 9
+# Numero de iteracoes que iram ser repetidas
 config.number_iterations = 500
+# Probabilidade de ocorrer uma mutacao em um dado gene dos cromossomos filhos
+# (0 a 100)
 config.mutation_probability = 5
+# Numero que representa o total de ocorrencias aleatorios que ocorreram durante
+# a selecao de quem ira ou nao continuar na populacao
+# Quanto maior for o valor, mais eventos aleatorios aconteceram e em decorrencia
+# disso mais aleatorio sera o resultado
+# Quanto menor ele for definido maior sera as chances das novas populacoes serem
+# escolhidas na selecao dos mais fortes e propensos a continuar a reproducao
 config.cut_randomness = 30
 
-
-
+#Inicia o GA
 run(cities, config)
