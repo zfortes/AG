@@ -170,6 +170,7 @@ def print_way(cities, chromosome):
 # cut_population onde sera decidido quem continuara na populacao e quem sera removido
 def run(cities, config):
     population, min_cost = create_initial_population(cities, config)
+    intial_population = population.copy()
     for i in range(config.number_iterations):
         for x in population:
             if min_cost.cost > x.cost:
@@ -185,7 +186,7 @@ def run(cities, config):
         population = cut_population(population + new_population, config)
 
     print("------------------------First population-------------------------")
-    for x in population:
+    for x in intial_population:
         print(x.chromosome)
 
     print("|------------ Result --------------|")
