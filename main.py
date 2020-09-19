@@ -23,16 +23,12 @@ def initialize():
 cities = initialize()
 config = structure()
 config.population_size = 20
-config.number_city = 10
-config.city_start = 9
-config.number_iterations = 1000
-config.mutation_probability = 3
-config.crossover_probability = 1
+# config.number_city = 10
+# config.city_start = 9
+config.number_iterations = 500
+config.mutation_probability = 5
+config.cut_randomness = 30
 
 
-
-a, b = 0, 1
-print("{} -> {}".format(cities.name[a], cities.name[b]))
-print(cities.distances[a][b])
 
 run(cities, config)
