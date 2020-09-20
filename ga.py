@@ -146,7 +146,7 @@ def cut_population(population, config):
 
 # Funcao que exibe os nomes das cidades de um dado cromossomo
 def print_way(cities, chromosome):
-    print("{} -> {} -> {} -> {} -> {} -> {} -> {} -> {} -> {} -> {} -> {}".format(
+    print("     {} -> {} -> {} -> {} -> {} -> {} -> {} -> {} -> {} -> {} -> {}".format(
         cities.name[chromosome[0]],
         cities.name[chromosome[1]],
         cities.name[chromosome[2]],
@@ -185,11 +185,7 @@ def run(cities, config):
             print_way(cities, new_chromosome.chromosome)
         population = cut_population(population + new_population, config)
 
-    print("------------------------First population-------------------------")
-    for x in intial_population:
-        print(x.chromosome)
-
-    print("|------------ Result --------------|")
+    print("|-------------------------------------- Result --------------------------------------|")
     print_way(cities, min_cost.chromosome)
-    print("Min cost = {}".format(min_cost.chromosome))
-    print("Fitness min cost = {}".format(calc_fitness(cities, min_cost.chromosome)))
+    print("     Best solution = {}".format(min_cost.chromosome))
+    print("     Cost of solution = {}".format(calc_fitness(cities, min_cost.chromosome)))
