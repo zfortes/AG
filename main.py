@@ -43,7 +43,7 @@ config.number_iterations = 1000
 # Probabilidade de ocorrer uma mutacao em um dado gene dos cromossomos filhos
 # (0 a 100)
 config.mutation_probability = 3
-# Numero que representa o total de ocorrencias aleatorios que ocorreram durante
+# Numero que representa o total de ocorrencias aleatorias que ocorreram durante
 # a selecao de quem ira ou nao continuar na populacao
 # Quanto maior for o valor, mais eventos aleatorios acontecerao  e em decorrencia
 # disso mais aleatorio sera o resultado
